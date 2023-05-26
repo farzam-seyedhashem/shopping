@@ -149,16 +149,74 @@ function ProductCard({item}) {
         </li>
     )
 }
+function ProductCardSuggest({item}) {
+    const router = useRouter()
+    const removeItem = () => {
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || []
+        const index = favorites.indexOf(item.id);
+        if (index > -1) { // only splice array when item is found
+            favorites.splice(index, 1); // 2nd parameter means remove one item only
+        }
+        localStorage.setItem("favorites", JSON.stringify(favorites))
+        router.reload()
+    }
+    return (
+        <li className={"bg-white rounded-xl py-2 pr-4 pl-6 flex items-start border-black border-opacity-10"}>
+            <div className={" h-[100px] relative w-[80px]"}>
+                <Image className={"rounded-[12px]"} layout={"fill"} objectFit={"cover"} height={"1920"} width={"1080"}
+                       src={`/products/${item.thumbnail}`}/>
+            </div>
+            <div className={"flex-1 mr-4"}>
+                <h2 className={"w-full text-start truncate font-bold text-2xl"}>
+                    {item.name}
+                </h2>
+                <h2 className={"w-full mb-4 text-start truncate text-zinc-800 text-base"}>
+                    {item.description}
+                </h2>
 
+                <div className={"flex text-xl font-bold justify-end items-center"}>
+                    {!item.priceNew ? <span className={`${item.priceNew ? "text-red-400 " : "text-green-600"}`}>
+                    {item.price * 1000}
+                        </span> : <del className={`${item.priceNew ? "text-red-400 ml-2" : "text-green-600"}`}>
+                        {item.price * 1000}
+                    </del>}
+                    {item.priceNew && <span className={`text-green-600`}>
+                    {item.priceNew * 1000}
+                        </span>}
+                </div>
+            </div>
+
+        </li>
+    )
+}
 export default function MainLayout({children}) {
     const [open, setOpen] = useState(false)
     const router = useRouter()
     const [favorite, setFavorite] = useState([])
     const [isFavoriteDialogOpen, setIsFavoriteDialogOpen] = useState(false)
     const [isOpenProductMenu, setIsOpenProductMenu] = useState(false)
+    const [suggest, setSuggest] = useState([])
     useEffect(() => {
         let favorites = JSON.parse(localStorage.getItem("favorites")) || []
         setFavorite(favorites)
+        if (localStorage.getItem("favorites")) {
+            const favorites = JSON.parse(localStorage.getItem("favorites"))
+            let favoritesProduct = []
+            let suggestProduct = []
+            products.filter(item => favorites.indexOf(item.id) >= 0).map(item => {
+                favoritesProduct.push(item)
+            })
+            favoritesProduct.map(item =>
+                products.filter(p => p.category === item.category).map(ps =>
+                    suggestProduct.push(ps)
+                )
+            )
+            let suggestProductUnique = suggestProduct.filter((element, index) => {
+                return suggestProduct.indexOf(element) === index;
+            });
+
+            setSuggest(suggestProductUnique)
+        }
     }, [])
     const menu = [
         {
@@ -185,8 +243,18 @@ export default function MainLayout({children}) {
 
     return (
         <div>
-            {isOpenProductMenu&&<div className={"fixed z-[888] inset-0 bg-black bg-opacity-80"}/>}
-            {isOpenProductMenu&&<div className={"fixed top-[56px]   w-full h-fit bg-white z-[888]"}>
+            {suggest.length > 0 && <div className={"fixed bottom-4 z-[222] left-1/2 transform -translate-x-1/2 rounded-2xl container bg-blue-50 shadow-2xl mx-auto py-4 px-6"}>
+                <h2 className={"text-2xl font-black"}>
+                    پیشنهاد ما
+                </h2>
+                <div className={"grid pb-[28px] grid-cols-4 gap-2 mt-6"}>
+                    {
+                        suggest.map((item, i) => <ProductCardSuggest key={i} item={item}/>)
+                    }
+                </div>
+            </div>}
+            {isOpenProductMenu&&<div onClick={()=>setIsOpenProductMenu(false)} className={"fixed z-[889] inset-0 bg-black bg-opacity-80"}/>}
+            {isOpenProductMenu&&<div className={"fixed top-[56px]   w-full h-fit bg-white z-[889]"}>
                 <div className={"grid grid-cols-3 gap-4 container mx-auto py-6"}>
                     {types.map((type, i) => <div key={i}>
                         <h2>
@@ -233,7 +301,7 @@ export default function MainLayout({children}) {
                     <ul className={"flex items-center mr-6 flex-1"}>
 
                         {menu.map((item, i) =>
-                            item.link === "p" ? <li key={i} onClick={() => setIsOpenProductMenu(true)}
+                            item.link === "p" ? <li key={i} onClick={() => setIsOpenProductMenu(!isOpenProductMenu)}
                                                     className={`px-4 text-sm ${isOpenProductMenu ? "text-blue-700 font-medium" : "text-zinc-600"}`}>
 
                                     لیست محصولات

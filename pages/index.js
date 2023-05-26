@@ -32,10 +32,10 @@ export default function Example() {
     const [openQuantityDialog, setOpenQuantityDialog] = useState(false)
     const [quantityProducts, setQuantityProducts] = useState([])
     useEffect(() => {
-        if (localStorage.getItem("cart")) {
-            const cart = JSON.parse(localStorage.getItem("cart"))
-            const productsInCart = products.filter(item => cart.findIndex(c => c.pId === item.id) >= 0)
-            const productsHaveTwoQuantity = productsInCart.filter(item => item.quantity <= 20)
+        if (localStorage.getItem("favorites")) {
+            const cart = JSON.parse(localStorage.getItem("favorites"))
+            const productsInCart = products.filter(item => cart.findIndex(c => c === item.id) >= 0)
+            const productsHaveTwoQuantity = productsInCart.filter(item => item.quantity <= 2)
             if (productsHaveTwoQuantity.length > 0) {
                 setOpenQuantityDialog(true)
                 setQuantityProducts(productsHaveTwoQuantity)
@@ -81,7 +81,7 @@ export default function Example() {
                                 در حال اتمام
                             </h2>
                             <p className={"text-base pt-1 text-zinc-800"}>
-                                از محصولات زیر تعداد کمی باقی مانده جهت تکمیل سفارش به صفحه محصولات مراجعه کنید.
+                                از محصولات زیر که به علاقه مندی خود اضافه کردید تعداد کمی موجود است جهت سفارش فورا اقدام کنید
                             </p>
                         </div>
                         <div>
@@ -92,8 +92,9 @@ export default function Example() {
                         </div>
                     </div>
 
-                    <div className={"h-[calc(100%_-_92px_-_56px)] overflow-scroll"}>
+                    <div className={"h-[calc(100%_-_92px)] overflow-scroll"}>
                         {quantityProducts.map((item, i) =>
+
                             <div className={"flex px-4 items-center"} key={i}>
                                 {/* eslint-disable-next-line jsx-a11y/alt-text */}
                                 <Image objectFit={"cover"} height={"100"} width={"70"} leyout={"responsive"}
@@ -109,12 +110,12 @@ export default function Example() {
                             </div>
                         )}
                     </div>
-                    <div className={"bg-white  px-2 py-2"}>
-                        <Link href={"/cart"} className={"bg-black flex justify-center items-center w-full py-2 h-10 text-sm rounded-xl text-white"}>
-                            مشاهده سبد خرید
-                            <ChevronLeftIcon className={"w-4 h-4 mr-2"}/>
-                        </Link>
-                    </div>
+                    {/*<div className={"bg-white  px-2 py-2"}>*/}
+                    {/*    <Link href={"/cart"} className={"bg-black flex justify-center items-center w-full py-2 h-10 text-sm rounded-xl text-white"}>*/}
+                    {/*        ماشاهده همه مح*/}
+                    {/*        <ChevronLeftIcon className={"w-4 h-4 mr-2"}/>*/}
+                    {/*    </Link>*/}
+                    {/*</div>*/}
 
                 </div>}
             </>}
@@ -135,7 +136,7 @@ export default function Example() {
                         </div>
                         <div className={"mt-[64px] py-24 bg-zinc-50"}>
                             <div
-                                className={" sticky  z-999 top-[56px] bg-zinc-50"}>
+                                className={" sticky  z-[888] top-[56px] bg-zinc-50"}>
                                 <div className={"container mx-auto border-b  border-zinc-400 flex items-center"}>
                                     {types.map((item, i) =>
                                         <div onClick={() => setTab(item.id)} key={i}
@@ -158,16 +159,7 @@ export default function Example() {
                                 </div>
                             </div>
                         </div>
-                        {suggest.length > 0 && <div className={"container mx-auto mt-[64px]"}>
-                            <h2 className={"text-2xl font-black"}>
-                                پیشنهاد ما
-                            </h2>
-                            <div className={"grid pb-[28px] grid-cols-4 gap-2 mt-6"}>
-                                {
-                                    suggest.map((item, i) => <ProductCard key={i} item={item}/>)
-                                }
-                            </div>
-                        </div>}
+
                     </div>
                 </div>
             </MainLayout>
