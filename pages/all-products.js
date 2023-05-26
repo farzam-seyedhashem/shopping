@@ -6,7 +6,9 @@ import {useEffect, useState} from "react";
 export default function productsAllPage(){
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [tab, setTab] = useState(1)
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [selectedTabProduct, setSelectedTabProduct] = useState([])
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         const topCategoryF = topCategory.filter(item => item.typeId === tab)
         console.log(topCategoryF)
