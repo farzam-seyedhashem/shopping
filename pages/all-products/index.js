@@ -29,7 +29,7 @@ export default function productsAllPage() {
     //     setSelectedTabProduct(productF)
     // }, [tab])
     return (
-        <MainLayout>
+        <MainLayout withoutItems>
             <div className={"pb-[800px] pt-[90px] container mx-auto"}>
 
                 <div

@@ -171,13 +171,13 @@ export default function ProductCard({item, withoutItems}) {
                         </span>}
                 </div>}
                 <div className={"flex items-center pt-6 pb-2 justify-end"}>
-                    <button onClick={() => addToFavorite(item.id)}
-                            className={"bg-red-50 hover:bg-red-100  text-black text-sm ml-2 px-6 h-10 rounded-full"}>
+                    {!withoutItems&&<button onClick={() => addToFavorite(item.id)}
+                             className={"bg-red-50 hover:bg-red-100  text-black text-sm ml-2 px-6 h-10 rounded-full"}>
                         {favorite.find(f => item.id === f) ?
                             <HeartIconSolid onClick={addToFavorite} className={"text-red-600"} height={24}
                                             width={24}/> : <HeartIcon height={24} width={24}/>}
 
-                    </button>
+                    </button>}
                     <button onClick={() => setIsAddToCartOpen(true)}
                             className={"bg-black flex items-center text-sm text-white px-6 h-10 rounded-full"}>
                         <ShoppingCartIcon className={"ml-2"} height={24} width={24}/>

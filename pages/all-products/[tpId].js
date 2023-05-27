@@ -28,7 +28,7 @@ export default function productsAllPage({typeId}){
         setSelectedTabProduct(productF)
     }, [])
     return(
-        <MainLayout>
+        <MainLayout withoutItems>
             <div className={" pt-[90px] container mx-auto"}>
                 <h1 className={"font-bold text-[48px] mb-6"}>
                     لیست محصولات

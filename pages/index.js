@@ -326,7 +326,7 @@ export default function Example() {
                         <div className={"mt-[64px] py-24 bg-zinc-50"}>
                             <div className={"grid grid-cols-3 gap-4 container mx-auto"}>
                                 {types.map((item, i) =>
-                                    <a href={`/all-products/${item.id}`} className={"col-span-1"} key={i}>
+                                    <a href={`/products/${item.id}`} className={"col-span-1"} key={i}>
                                         <div>
                                             {i === 0 && <Image height={1080} width={1080} layout={"responsive"}
                                                                src={"/bg-3.jpg"}/>}

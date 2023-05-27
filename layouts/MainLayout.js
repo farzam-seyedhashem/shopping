@@ -278,7 +278,7 @@ function ProductCardSuggest({item}) {
     )
 }
 
-export default function MainLayout({children}) {
+export default function MainLayout({children,withoutItems}) {
     const [open, setOpen] = useState(false)
     const router = useRouter()
     const [favorite, setFavorite] = useState([])
@@ -332,7 +332,7 @@ export default function MainLayout({children}) {
 
     return (
         <div className={"pb-64"}>
-            {suggest.length > 0 && <div
+            {(!withoutItems&&suggest.length > 0) && <div
                 className={"fixed bottom-4 z-[222] left-1/2 transform -translate-x-1/2 rounded-2xl container bg-blue-50 shadow-2xl mx-auto py-4 px-6"}>
                 <h2 className={"text-2xl font-black"}>
                     پیشنهاد ما
@@ -395,7 +395,7 @@ export default function MainLayout({children}) {
                             item.link === "p" ? <li key={i} onClick={() => setIsOpenProductMenu(!isOpenProductMenu)}
                                                     className={`px-4 text-sm ${isOpenProductMenu ? "text-blue-700 font-medium" : "text-zinc-600"}`}>
 
-                                    لیست محصولات
+                                   دسته بندی
 
                                 </li> :
                                 <li key={i}>
