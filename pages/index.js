@@ -281,7 +281,7 @@ export default function Example() {
                     <div className={"h-[calc(100%_-_92px)] overflow-scroll"}>
                         <div className={"grid grid-cols-1 gap-4 px-6"}>
                             {quantityProducts.map((item, i) =>
-                                    <ProductCard item={item}/>
+                                    <ProductCard key={i} item={item}/>
                                 // <div className={"flex px-4 items-center"} key={i}>
                                 //
                                 //     {/* eslint-disable-next-line jsx-a11y/alt-text */}
