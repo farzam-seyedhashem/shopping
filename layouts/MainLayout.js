@@ -19,14 +19,15 @@ import {
     Bars3Icon, ChevronLeftIcon, HeartIcon,
     MagnifyingGlassIcon,
     QuestionMarkCircleIcon,
-    ShoppingBagIcon, TrashIcon, UserCircleIcon, UserIcon,
+    ShoppingBagIcon, ShoppingCartIcon, TrashIcon, UserCircleIcon, UserIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline'
 import {ChevronDownIcon} from '@heroicons/react/20/solid'
 import Link from "next/link";
 import {useRouter} from "next/router";
-import {categories, products, topCategory, types} from "@/data/Datas";
+import {categories, products, sizes, topCategory, types} from "@/data/Datas";
 import Image from 'next/legacy/image'
+import {CloseIcon} from "next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon";
 
 const currencies = ['CAD', 'USD', 'AUD', 'EUR', 'GBP']
 const navigation = {
@@ -149,8 +150,22 @@ function ProductCard({item}) {
         </li>
     )
 }
+
 function ProductCardSuggest({item}) {
     const router = useRouter()
+    const [isAddToCartOpen,setIsAddToCartOpen] = useState(false)
+    const [selectedSize, setSelectedSize] = useState(null)
+    const [selectedQuantity, setSelectedQuantity] = useState(1)
+    const withoutItems = false
+    const formatter = new Intl.NumberFormat('fa-IR', {
+        style: 'currency', currency: 'IRR',
+
+        // These options are needed to round to whole numbers if that's what you want.
+        minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+        //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+    });
+    const [cart, setCart] = useState([])
+
     const removeItem = () => {
         let favorites = JSON.parse(localStorage.getItem("favorites")) || []
         const index = favorites.indexOf(item.id);
@@ -160,35 +175,109 @@ function ProductCardSuggest({item}) {
         localStorage.setItem("favorites", JSON.stringify(favorites))
         router.reload()
     }
+    useEffect(() => {
+        let cart = JSON.parse(localStorage.getItem("cart")) || []
+        setCart(cart)
+        setSelectedSize(item.sizesId[0])
+    }, [])
+    const addToCart = (id) => {
+        let cartProducts = cart
+        cartProducts.push({pId: id, sId: selectedSize, q: selectedQuantity})
+        setCart([...cart, id])
+        localStorage.setItem("cart", JSON.stringify(cartProducts))
+        router.reload()
+    }
     return (
-        <li className={"bg-white rounded-xl py-2 pr-4 pl-6 flex items-start border-black border-opacity-10"}>
-            <div className={" h-[100px] relative w-[80px]"}>
-                <Image className={"rounded-[12px]"} layout={"fill"} objectFit={"cover"} height={"1920"} width={"1080"}
-                       src={`/products/${item.thumbnail}`}/>
-            </div>
-            <div className={"flex-1 mr-4"}>
-                <h2 className={"w-full text-start truncate font-bold text-2xl"}>
-                    {item.name}
-                </h2>
-                <h2 className={"w-full mb-4 text-start truncate text-zinc-800 text-base"}>
-                    {item.description}
-                </h2>
+        <>
 
-                <div className={"flex text-xl font-bold justify-end items-center"}>
-                    {!item.priceNew ? <span className={`${item.priceNew ? "text-red-400 " : "text-green-600"}`}>
+            <li className={"bg-white relative rounded-xl py-2 pr-4 pl-6 flex items-start border-black border-opacity-10"}>
+                <div className={" h-[100px] relative w-[80px]"}>
+                    <Image className={"rounded-[12px]"} layout={"fill"} objectFit={"cover"} height={"1920"}
+                           width={"1080"}
+                           src={`/products/${item.thumbnail}`}/>
+                </div>
+                {isAddToCartOpen?<div className={"absolute left-2 top-2"}>
+                    <button onClick={() => setIsAddToCartOpen(false)}
+                            className={"h-10 w-10 flex rounded-full items-center justify-center hover:bg-black hover:bg-opacity-4"}>
+                        <CloseIcon className={"w-6 h-6"}/>
+                    </button>
+                </div>:<button onClick={() => setIsAddToCartOpen(true)}
+                         className={"absolute left-2 flex items-center justify-center top-2 bg-black h-10 w-10 rounded-full text-white"}>
+                    <ShoppingCartIcon className={"w-6 h-6"}/>
+                </button>}
+                {isAddToCartOpen? <div className={"flex-1 mr-4"}>
+
+                    <h2 className={"text-3xl font-bold"}>
+                        {item.name}
+                    </h2>
+                    <p className={"text-zinc-800 mt-1 mb-4"}>
+                        {item.description}
+                    </p>
+                    <div className={"mb-4"}>
+                        <div className={"block font-medium mb-4 px-2"}>
+                            انتخاب سایز :
+                        </div>
+                        {item.sizesId.map((is, i) => <div onClick={() => setSelectedSize(is)}
+                                                          className={`${selectedSize === is ? "bg-black text-white" : ""} rounded-lg mb-2 text-sm px-6 ml-2 py-1 inline-flex border border-black`}
+                                                          key={i}>
+                            {sizes.find(s => s.id === is).name}
+                        </div>)}
+                    </div>
+                    {!withoutItems && <div className={"mb-4"}>
+                        <div className={"block font-medium mb-4 px-2"}>
+                            انتخاب تعداد :
+                        </div>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].map((q, i) => q < item.quantity &&
+                            <div onClick={() => setSelectedQuantity(q)}
+                                 className={`${selectedQuantity === q ? "bg-black text-white" : ""} mb-2 rounded-lg text-sm px-6 ml-2 py-1 inline-flex border border-black`}
+                                 key={i}>
+                                {q}
+                            </div>)}
+                    </div>}
+                    <div className={"mb-6 flex text-xl font-bold justify-start items-center"}>
+                        {withoutItems ? <span className={`"text-green-600`}>
+                                        {formatter.format((item.price * 10000).toString())}
+                        </span> : !item.priceNew ?
+                            <span className={`${item.priceNew ? "text-red-400 " : "text-green-600"}`}>
+                                        {formatter.format((item.price * 10000).toString())}
+                        </span> : <del className={`${item.priceNew ? "text-red-400 ml-2" : "text-green-600"}`}>
+                                {formatter.format((item.price * 10000).toString())}
+                            </del>}
+                        {item.priceNew && <span className={`text-green-600`}>
+                    {formatter.format((item.priceNew * 10000).toString())}
+                        </span>}
+                    </div>
+                    <button onClick={() => addToCart(item.id)}
+                            className={"bg-black flex items-center text-sm text-white px-6 h-10 rounded-full"}>
+                        <ShoppingCartIcon className={"ml-2"} height={24} width={24}/>
+                        افزودن به سبد خرید
+                    </button>
+                </div>:<div className={"flex-1 mr-4"}>
+
+                    <h2 className={"w-full text-start truncate font-bold text-2xl"}>
+                        {item.name}
+                    </h2>
+                    <h2 className={"w-full mb-4 text-start truncate text-zinc-800 text-base"}>
+                        {item.description}
+                    </h2>
+
+                    <div className={"flex text-xl font-bold justify-end items-center"}>
+                        {!item.priceNew ? <span className={`${item.priceNew ? "text-red-400 " : "text-green-600"}`}>
                     {item.price * 1000}
                         </span> : <del className={`${item.priceNew ? "text-red-400 ml-2" : "text-green-600"}`}>
-                        {item.price * 1000}
-                    </del>}
-                    {item.priceNew && <span className={`text-green-600`}>
+                            {item.price * 1000}
+                        </del>}
+                        {item.priceNew && <span className={`text-green-600`}>
                     {item.priceNew * 1000}
                         </span>}
-                </div>
-            </div>
+                    </div>
+                </div>}
 
-        </li>
+            </li>
+        </>
     )
 }
+
 export default function MainLayout({children}) {
     const [open, setOpen] = useState(false)
     const router = useRouter()
@@ -242,8 +331,9 @@ export default function MainLayout({children}) {
     ]
 
     return (
-        <div>
-            {suggest.length > 0 && <div className={"fixed bottom-4 z-[222] left-1/2 transform -translate-x-1/2 rounded-2xl container bg-blue-50 shadow-2xl mx-auto py-4 px-6"}>
+        <div className={"pb-64"}>
+            {suggest.length > 0 && <div
+                className={"fixed bottom-4 z-[222] left-1/2 transform -translate-x-1/2 rounded-2xl container bg-blue-50 shadow-2xl mx-auto py-4 px-6"}>
                 <h2 className={"text-2xl font-black"}>
                     پیشنهاد ما
                 </h2>
@@ -253,13 +343,14 @@ export default function MainLayout({children}) {
                     }
                 </div>
             </div>}
-            {isOpenProductMenu&&<div onClick={()=>setIsOpenProductMenu(false)} className={"fixed z-[889] inset-0 bg-black bg-opacity-80"}/>}
-            {isOpenProductMenu&&<div className={"fixed top-[56px]   w-full h-fit bg-white z-[889]"}>
+            {isOpenProductMenu && <div onClick={() => setIsOpenProductMenu(false)}
+                                       className={"fixed z-[889] inset-0 bg-black bg-opacity-80"}/>}
+            {isOpenProductMenu && <div className={"fixed top-[56px]   w-full h-fit bg-white z-[889]"}>
                 <div className={"grid grid-cols-3 gap-4 container mx-auto py-6"}>
                     {types.map((type, i) => <div key={i}>
                         <h2>
                             <a className={"font-bold py-3 flex text-xl hover:underline"}
-                                  href={`/products/${type.id}`}>
+                               href={`/products/${type.id}`}>
                                 {type.name}
                             </a>
                         </h2>
@@ -278,7 +369,7 @@ export default function MainLayout({children}) {
                                     {categories.filter(c => c.topCategoryId === tpc.id).map((c, i) =>
                                         <li key={i}>
                                             <a className={"text-zinc-700 mb-1 hover:underline"}
-                                                  href={`/products/${type.id}/${tpc.id}/${c.id}`}>
+                                               href={`/products/${type.id}/${tpc.id}/${c.id}`}>
                                                 {c.name}
                                             </a>
                                         </li>
@@ -291,7 +382,7 @@ export default function MainLayout({children}) {
                 </div>
             </div>}
             <div
-                className="border-b border-black border-opacity-[12%] fixed top-0 w-full h-[64px] flex items-center bg-white bg-opacity-90 backdrop-filter backdrop-blur-xl z-999">
+                className="border-b  border-black border-opacity-[12%] fixed top-0 w-full h-[64px] flex items-center bg-white bg-opacity-90 backdrop-filter backdrop-blur-xl z-999">
                 <div className={"items-center flex container mx-auto"}>
                     <img
                         className="h-8 w-auto"
